@@ -1,3 +1,5 @@
+import json  # Importamos la librería json para manejar archivos JSON
+
 class Libro:
     def __init__(self, titulo, autor, isbn):
         self.titulo = titulo
@@ -32,6 +34,17 @@ class Libro:
             return True
         return False
 
+def cargar_libros():
+    try:
+        with open("biblioteca.json", "r") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return []
+
+def guardar_libros(libros):
+    with open("biblioteca.json", "w") as archivo:
+        json.dump(libros, archivo, indent=4)
+
 def menu():
     print("\nBienvenido al Sistema de Gestión de Biblioteca")
     print("1. Agregar libro")
@@ -43,7 +56,7 @@ def menu():
     return input("Elige una opción: ")
 
 def main():
-    biblioteca = []
+    biblioteca = cargar_libros()
 
     while True:
         opcion = menu()
@@ -52,15 +65,26 @@ def main():
             titulo = input("Título: ")
             autor = input("Autor: ")
             isbn = input("ISBN: ")
-            nuevo_libro = Libro(titulo, autor, isbn)
+            nuevo_libro = {
+                "titulo": titulo,
+                "autor": autor,
+                "isbn": isbn,
+                "disponible": True
+            }
             biblioteca.append(nuevo_libro)
-            nuevo_libro.agregar()
+            guardar_libros(biblioteca)
+            print("Libro agregado con éxito.")
 
         elif opcion == '2':
             isbn = input("Ingresa el ISBN: ")
             for libro in biblioteca:
-                if libro.buscar(isbn):
-                    libro.prestar()
+                if libro["isbn"] == isbn:
+                    if libro["disponible"]:
+                        libro["disponible"] = False
+                        guardar_libros(biblioteca)
+                        print(f"Libro {libro['titulo']} prestado con éxito.")
+                    else:
+                        print(f"El libro {libro['titulo']} ya está prestado.")
                     break
             else:
                 print("Libro no encontrado.")
@@ -68,8 +92,13 @@ def main():
         elif opcion == '3':
             isbn = input("Ingresa el ISBN: ")
             for libro in biblioteca:
-                if libro.buscar(isbn):
-                    libro.devolver()
+                if libro["isbn"] == isbn:
+                    if not libro["disponible"]:
+                        libro["disponible"] = True
+                        guardar_libros(biblioteca)
+                        print(f"Libro {libro['titulo']} devuelto con éxito.")
+                    else:
+                        print(f"El libro {libro['titulo']} ya estaba disponible.")
                     break
             else:
                 print("Libro no encontrado.")
@@ -79,12 +108,15 @@ def main():
                 print("No hay libros en la biblioteca.")
             else:
                 for libro in biblioteca:
-                    libro.mostrar()
+                    estado = "Sí" if libro["disponible"] else "No"
+                    print(f"- {libro['titulo']} ({libro['autor']}) - ISBN: {libro['isbn']} - Disponible: {estado}")
 
         elif opcion == '5':
             isbn = input("Ingresa el ISBN: ")
             for libro in biblioteca:
-                if libro.buscar(isbn):
+                if libro["isbn"] == isbn:
+                    estado = "Sí" if libro["disponible"] else "No"
+                    print(f"- {libro['titulo']} ({libro['autor']}) - ISBN: {libro['isbn']} - Disponible: {estado}")
                     break
             else:
                 print("Libro no encontrado.")
@@ -98,3 +130,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

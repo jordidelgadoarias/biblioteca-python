@@ -1,4 +1,4 @@
-import json  # Importamos la librería json para manejar archivos JSON
+import json
 
 class Libro:
     def __init__(self, titulo, autor, isbn):
@@ -39,7 +39,23 @@ def cargar_libros():
         with open("biblioteca.json", "r") as archivo:
             return json.load(archivo)
     except FileNotFoundError:
-        return []
+        # Libros de ejemplo si el archivo no existe
+        libros_ejemplo = [
+            {
+                "titulo": "La ciudad de los prodigios",
+                "autor": "Eduardo Mendoza",
+                "isbn": "9788432231513",
+                "disponible": True
+            },
+            {
+                "titulo": "La sombra del viento",
+                "autor": "Carlos Ruiz Zafón",
+                "isbn": "9788408163350",
+                "disponible": True
+            }
+        ]
+        guardar_libros(libros_ejemplo)
+        return libros_ejemplo
 
 def guardar_libros(libros):
     with open("biblioteca.json", "w") as archivo:
